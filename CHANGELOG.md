@@ -1,5 +1,12 @@
 # Change Log
 
+**0.2.1**
+
+- 添加文本搜索：输入关键词，从命中列表跳转到对应页
+- 依赖管理改为 npm（使用 `package-lock.json`）
+- 移除易失败的 `vscode` postinstall 脚本
+- 完善 README：功能说明、配置表、开发与打包步骤
+
 **0.2.0**
 
 - 添加 EPUB 格式支持，自动识别 TXT 和 EPUB 文件

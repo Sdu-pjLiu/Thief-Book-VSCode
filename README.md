@@ -1,118 +1,162 @@
 # Thief Book
 
-一个摸鱼看书神器
+一个摸鱼看书神器：在 VS Code / Cursor **状态栏**阅读 TXT / EPUB 小说，支持翻页、跳转与文本搜索。
 
 ![](./images/1.png)
 
+## 功能
+
+- 支持 **TXT**、**EPUB**（按扩展名自动识别）
+- 内容显示在状态栏，翻页不打断编码
+- **老板键**：状态栏切换为随机 Hello World 代码
+- **搜索**：关键词匹配，从列表选择后跳转到对应页
+- 页码保存在设置中，重启可继续阅读
+
 ## 安装
 
-- https://marketplace.visualstudio.com/items?itemName=C-TEAM.thief-book
+**市场安装**
 
-## PC版本
+- [VS Code Marketplace - Thief-Book](https://marketplace.visualstudio.com/items?itemName=C-TEAM.thief-book)
 
-更加隐蔽功能更加丰富：https://github.com/cteams/Thief-Book
+**本地 VSIX 安装**
+
+1. 按下方「开发与打包」生成 `.vsix`
+2. 扩展视图 → `...` → **从 VSIX 安装**，或：
+
+```bash
+code --install-extension ./thief-book-0.2.1.vsix
+# Cursor:
+# cursor --install-extension ./thief-book-0.2.1.vsix
+```
+
+## PC 版本
+
+功能更丰富、更隐蔽的桌面版：[cteams/Thief-Book](https://github.com/cteams/Thief-Book)
 
 ## 默认配置
 
-> 需要填写 TXT小说 路径才可以使用此插件
+> 必须填写小说文件的**绝对路径**后才能阅读 / 搜索。
 
-- 当前页数：1
-- 每页长度：50
-- 是否为英文：false 如果是英文小说，请勾选
-- 换行分隔符号：一个空格 
-- TXT绝对路径：空
+在设置中搜索 `Thief-Book`，或直接编辑：
 
-## 路径格式
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `thiefBook.filePath` | 空 | TXT 或 EPUB 绝对路径 |
+| `thiefBook.currPageNumber` | `1` | 当前页（改完后可用跳转快捷键刷新） |
+| `thiefBook.pageSize` | `50` | 每页字符数 |
+| `thiefBook.isEnglish` | `false` | 英文书勾选后，每页按 `pageSize × 2` 计算 |
+| `thiefBook.lineBreak` | 一个空格 | 原文换行替换成的分隔符 |
 
-- **Mac** or **Linux** : /opt/test/name.txt
-- **Win** : C:\\\Users\\\Administrator\\\Desktop\\\name.txt or C:/Users/Administrator/Desktop/name.txt
+### 路径格式
+
+- **Mac / Linux**：`/opt/test/name.txt` 或 `/opt/test/name.epub`
+- **Windows**：`C:/Users/Administrator/Desktop/name.txt`  
+  或 `C:\\Users\\Administrator\\Desktop\\name.txt`
 
 ## 快捷键
 
-> 没有设置TXT小说的本地绝对路径，会报错，会提示设置路径
+> 未设置 `thiefBook.filePath` 时，翻页 / 搜索会提示先配置路径。
 
-**MAC**
+| 功能 | macOS | Windows / Linux | 说明 |
+|------|-------|-----------------|------|
+| 老板键 | `Cmd+M` | `Ctrl+M` | 随时可用 |
+| 上一页 | `Cmd+,` | `Ctrl+Alt+,` | 需编辑器文本焦点 |
+| 下一页 | `Cmd+.` | `Ctrl+Alt+.` | 需编辑器文本焦点 |
+| 跳转 | `Cmd+;` | `Ctrl+Alt+;` | 按设置中的当前页刷新状态栏 |
+| 搜索 | `Cmd+Alt+F` | `Ctrl+Alt+F` | 输入关键词 → 选择命中 → 跳页 |
 
-`Cmd+M` 老板键 。 随机显示不同语言的 Hello World ，随时可用
+也可在命令面板搜索：`thief-book.Search`、`thief-book.NextBook` 等。
 
-`Cmd+,` 上一页 。 文本聚焦(编辑代码)的时候，才可以使用
-
-`Cmd+.` 下一页 。 文本聚焦(编辑代码)的时候，才可以使用
-
-`Cmd+;` 跳转 。 文本聚焦(编辑代码)的时候，需要设置跳转页面，才可以使用
-
-**WIN**
-
-`Ctrl+M` 老板键 。 随机显示不同语言的 Hello World ，随时可用
-
-`Ctrl+Alt+,` 上一页 。 文本聚焦(编辑代码)的时候，才可以使用
-
-`Ctrl+Alt+.` 下一页 。 文本聚焦(编辑代码)的时候，才可以使用
-
-`Ctrl+Alt+;` 跳转 。 文本聚焦(编辑代码)的时候，需要设置跳转页面，才可以使用
-
-
-## 修改快捷键
+### 修改快捷键
 
 ![](./images/2.png)
 
 ![](./images/3.png)
+
+## 开发与打包
+
+本项目使用 **npm** 管理依赖（请使用 `package-lock.json`，不要再使用 yarn）。
+
+```bash
+# 安装依赖
+npm install
+
+# 编译 TypeScript → out/
+npm run compile
+
+# 监听模式
+npm run watch
+
+# 打包为 VSIX（需已安装 @vscode/vsce）
+npm install -g @vscode/vsce
+npm run package
+# 或：npx @vscode/vsce package
+```
+
+本地调试：用 VS Code / Cursor 打开本仓库，按 **F5** 启动扩展开发宿主。
 
 ---
 
-A fishing and reading magic weapon
+# Thief Book (English)
+
+Read novels in the VS Code / Cursor **status bar**. Supports TXT / EPUB, paging, jump, and text search.
+
+## Features
+
+- **TXT** and **EPUB** (auto-detected by extension)
+- Content shown in the status bar
+- **Boss key**: replace status text with random Hello World snippets
+- **Search**: substring match → pick a hit → jump to that page
+- Current page stored in settings
 
 ## Install
 
-- https://marketplace.visualstudio.com/items?itemName=C-TEAM.thief-book
+- [Marketplace](https://marketplace.visualstudio.com/items?itemName=C-TEAM.thief-book)
+- Or install a local `.vsix` (see **Develop & package** below)
 
-## PC
+## Desktop app
 
 https://github.com/cteams/Thief-Book
 
-## Default configuration
+## Configuration
 
-> You need to fill in the TXT novel path to use this plug-in
+> Set an absolute path in `thiefBook.filePath` before reading or searching.
 
-- Current Page: 1
-- Length per page: 50
-- Is English：false  If it's an English novel, please check it out.
-- Line Break Separation Symbol：A space
-- TXT Absolute Path: null
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `thiefBook.filePath` | empty | Absolute path to TXT or EPUB |
+| `thiefBook.currPageNumber` | `1` | Current page |
+| `thiefBook.pageSize` | `50` | Characters per page |
+| `thiefBook.isEnglish` | `false` | If true, page size = `pageSize × 2` |
+| `thiefBook.lineBreak` | space | Replacement for newlines |
 
-## Path format
+### Path examples
 
-- **Mac** or **Linux** : /opt/test/name.txt
-- **Win** : C:\\\Users\\\Administrator\\\Desktop\\\name.txt or C:/Users/Administrator/Desktop/name.txt
+- **Mac / Linux**: `/opt/test/name.txt`
+- **Windows**: `C:/Users/Administrator/Desktop/name.txt`
 
-## Shortcut keys
+## Shortcuts
 
-> If there is no absolute local path for TXT fiction, errors will be reported and paths will be prompted.
+| Action | macOS | Windows / Linux | Notes |
+|--------|-------|-----------------|-------|
+| Boss key | `Cmd+M` | `Ctrl+M` | Always |
+| Previous | `Cmd+,` | `Ctrl+Alt+,` | Requires editor text focus |
+| Next | `Cmd+.` | `Ctrl+Alt+.` | Requires editor text focus |
+| Jump | `Cmd+;` | `Ctrl+Alt+;` | Uses current page from settings |
+| Search | `Cmd+Alt+F` | `Ctrl+Alt+F` | Keyword → pick match → jump |
 
-**MAC**
+## Develop & package
 
-`Cmd+M` Boss key. randomly displays Hello World in different languages , Available at any time
+This project uses **npm** (`package-lock.json`). Do not use yarn.
 
-`Cmd+,` Previous page. When text is focused (editing code) , Only then can it be used
+```bash
+npm install
+npm run compile
+npm run watch
+npm install -g @vscode/vsce
+npm run package
+```
 
-`Cmd+.` Next page . When text is focused (editing code) , Only then can it be used
-
-`Cmd+;` Jump page . When focusing on text (editing code), jump pages need to be set before you can use them
-
-**WIN**
-
-`Ctrl+M` Boss key. randomly displays Hello World in different languages , Available at any time
-
-`Ctrl+Alt+,` Previous page. When text is focused (editing code) , Only then can it be used
-
-`Ctrl+Alt+.` Next page . When text is focused (editing code) , Only then can it be used
-
-`Ctrl+Alt+;` Jump page . When focusing on text (editing code), jump pages need to be set before you can use them
-
-## Update Shortcut keys
-
-![](./images/2.png)
-
-![](./images/3.png)
+Press **F5** in VS Code / Cursor to debug the extension.
 
 **Enjoy!**

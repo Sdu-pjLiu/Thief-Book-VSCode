@@ -3,6 +3,72 @@ import * as fs from "fs";
 import * as path from "path";
 import { EpubParser } from './epubUtil';
 
+export interface SearchMatch {
+    index: number;
+    page: number;
+    snippet: string;
+}
+
+const MAX_SEARCH_RESULTS = 200;
+const SNIPPET_RADIUS = 18;
+
+/**
+ * 在规范化文本上做包含匹配，返回命中列表（按出现顺序）。
+ */
+export function searchMatches(
+    text: string,
+    keyword: string,
+    pageSize: number,
+    caseInsensitive: boolean
+): { matches: SearchMatch[]; total: number } {
+    const needle = keyword.trim();
+    if (!needle || pageSize <= 0 || !text) {
+        return { matches: [], total: 0 };
+    }
+
+    const haystack = caseInsensitive ? text.toLowerCase() : text;
+    const needleCmp = caseInsensitive ? needle.toLowerCase() : needle;
+
+    const matches: SearchMatch[] = [];
+    let from = 0;
+    let total = 0;
+
+    while (true) {
+        const index = haystack.indexOf(needleCmp, from);
+        if (index < 0) {
+            break;
+        }
+        total += 1;
+        if (matches.length < MAX_SEARCH_RESULTS) {
+            const page = Math.floor(index / pageSize) + 1;
+            matches.push({
+                index,
+                page,
+                snippet: buildSnippet(text, index, needle.length),
+            });
+        }
+        from = index + needle.length;
+    }
+
+    return { matches, total };
+}
+
+/**
+ * 构造命中前后文摘要。
+ */
+function buildSnippet(text: string, index: number, keywordLen: number): string {
+    const start = Math.max(0, index - SNIPPET_RADIUS);
+    const end = Math.min(text.length, index + keywordLen + SNIPPET_RADIUS);
+    let snippet = text.substring(start, end).replace(/\s+/g, " ");
+    if (start > 0) {
+        snippet = "…" + snippet;
+    }
+    if (end < text.length) {
+        snippet = snippet + "…";
+    }
+    return snippet;
+}
+
 export class Book {
     curr_page_number: number = 1;
     page_size: number | undefined = 50;
@@ -235,5 +301,48 @@ export class Book {
         this.updatePage();
 
         return text.substring(this.start, this.end) + "    " + page_info;
+    }
+
+    /**
+     * 按关键词搜索当前小说，返回命中列表与总页数。
+     */
+    async search(keyword: string): Promise<{ matches: SearchMatch[]; total: number; page: number }> {
+        this.init();
+
+        const text = await this.readFile();
+        if (!text) {
+            return { matches: [], total: 0, page: this.page };
+        }
+
+        this.getSize(text);
+        const isEnglish = <boolean>workspace.getConfiguration().get("thiefBook.isEnglish");
+        const result = searchMatches(text, keyword, this.page_size!, isEnglish === true);
+        return { ...result, page: this.page };
+    }
+
+    /**
+     * 跳到指定页并返回状态栏文案。
+     */
+    async jumpToPage(pageNumber: number): Promise<string> {
+        this.init();
+
+        const text = await this.readFile();
+        if (!text) {
+            return "";
+        }
+
+        this.getSize(text);
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        } else if (pageNumber > this.page) {
+            pageNumber = this.page;
+        }
+
+        this.curr_page_number = pageNumber;
+        this.getStartEnd();
+        this.updatePage();
+
+        const pageInfo = `${this.curr_page_number}/${this.page}`;
+        return text.substring(this.start, this.end) + "    " + pageInfo;
     }
 }

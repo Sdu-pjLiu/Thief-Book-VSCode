@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { commands, ExtensionContext, window } from 'vscode';
+import { commands, ExtensionContext, QuickPickItem, window } from 'vscode';
 import * as book from './bookUtil';
 
 // this method is called when your extension is activated
@@ -68,10 +68,68 @@ export function activate(context: ExtensionContext) {
 		}
 	});
 
+	// 搜索小说内容
+	let searchBook = commands.registerCommand('extension.searchBook', async () => {
+		try {
+			const books = new book.Book(context);
+
+			const keyword = await window.showInputBox({
+				prompt: '搜索小说内容',
+				placeHolder: '输入要查找的关键词',
+				ignoreFocusOut: true,
+			});
+
+			if (keyword === undefined) {
+				return;
+			}
+			if (!keyword.trim()) {
+				window.showInformationMessage('关键词不能为空');
+				return;
+			}
+
+			const { matches, total, page } = await books.search(keyword);
+			if (total === 0) {
+				window.showInformationMessage('未找到匹配内容');
+				return;
+			}
+
+			interface MatchItem extends QuickPickItem {
+				pageNumber: number;
+			}
+
+			const items: MatchItem[] = matches.map((m) => ({
+				label: `${m.page}/${page}`,
+				description: m.snippet,
+				pageNumber: m.page,
+			}));
+
+			const picked = await window.showQuickPick(items, {
+				placeHolder:
+					total > matches.length
+						? `找到 ${total} 处，显示前 ${matches.length} 处`
+						: `找到 ${total} 处，选择后跳转`,
+				matchOnDescription: false,
+				matchOnDetail: false,
+			});
+
+			if (!picked) {
+				return;
+			}
+
+			const content = await books.jumpToPage(picked.pageNumber);
+			if (content) {
+				window.setStatusBarMessage(content);
+			}
+		} catch (error) {
+			window.showErrorMessage(`搜索失败: ${error}`);
+		}
+	});
+
 	context.subscriptions.push(displayCode);
 	context.subscriptions.push(getNextPage);
 	context.subscriptions.push(getPreviousPage);
 	context.subscriptions.push(getJumpingPage);
+	context.subscriptions.push(searchBook);
 }
 
 // this method is called when your extension is deactivated

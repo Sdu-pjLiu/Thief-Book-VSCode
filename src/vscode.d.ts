@@ -8,10 +8,34 @@ declare module 'vscode' {
         workspaceState: any;
     }
 
+    export interface QuickPickItem {
+        label: string;
+        description?: string;
+        detail?: string;
+    }
+
+    export interface InputBoxOptions {
+        prompt?: string;
+        placeHolder?: string;
+        ignoreFocusOut?: boolean;
+    }
+
+    export interface QuickPickOptions {
+        placeHolder?: string;
+        matchOnDescription?: boolean;
+        matchOnDetail?: boolean;
+    }
+
     export namespace window {
         export function showWarningMessage(message: string): void;
         export function showErrorMessage(message: string): void;
+        export function showInformationMessage(message: string): void;
         export function setStatusBarMessage(text: string): void;
+        export function showInputBox(options?: InputBoxOptions): Thenable<string | undefined>;
+        export function showQuickPick<T extends QuickPickItem>(
+            items: T[] | Thenable<T[]>,
+            options?: QuickPickOptions
+        ): Thenable<T | undefined>;
     }
 
     export namespace workspace {
